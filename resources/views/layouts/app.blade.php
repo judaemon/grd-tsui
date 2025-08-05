@@ -19,6 +19,7 @@
           x-data="{ name: @js(auth()->user()->name) }"
           x-on:name-updated.window="name = $event.detail.name"
           x-bind:class="{ 'dark bg-gray-800': darkTheme, 'bg-gray-100': !darkTheme }">
+    <x-dialog /> 
     <x-layout>
         <x-slot:top>
             <x-dialog />
