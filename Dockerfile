@@ -50,6 +50,9 @@ RUN docker-php-serversideup-set-id www-data ${USER_ID}:${GROUP_ID} && \
     chown -R www-data:www-data storage bootstrap/cache && \
     chmod -R 775 storage bootstrap/cache
 
+    # Exposed Ports
+EXPOSE 6001
+
 # Switch to www-data user
 USER www-data
 

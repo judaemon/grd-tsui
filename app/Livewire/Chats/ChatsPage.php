@@ -31,7 +31,8 @@ class ChatsPage extends Component
     public function selectConversation($conversationId)
     {
         $this->selectedConversation = Conversation::with(['messages' => function ($query) {
-            $query->orderBy('created_at', 'asc')->limit(10);
+            // TODO: remove limit implement pagination
+            $query->orderBy('created_at', 'asc')->limit(100);
         }])->find($conversationId);
 
         Log::info($this->selectedConversation);
@@ -47,7 +48,8 @@ class ChatsPage extends Component
             'conversation_id' => $this->selectedConversation->id,
             'user_id' => auth()->id(),
             'body' => $this->messageBody,
-            'type' => 'user',
+            'type' => Message::TYPE_USER,
+            'status' => 'sent',
         ]);
 
         $this->messageBody = '';

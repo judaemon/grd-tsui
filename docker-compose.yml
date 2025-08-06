@@ -9,6 +9,15 @@ x-base-service: &base-service
       PHP_VERSION: 8.3
   environment:
     PHP_MEMORY_LIMIT: "512M"
+    REVERB_APP_ID: ${REVERB_APP_ID}
+    REVERB_APP_KEY: ${REVERB_APP_KEY}
+    REVERB_APP_SECRET: ${REVERB_APP_SECRET}
+    REVERB_HOST: ${REVERB_HOST}
+    REVERB_PORT: ${REVERB_PORT}
+    REVERB_SCHEME: ${REVERB_SCHEME}
+    REVERB_SERVER_HOST: ${REVERB_SERVER_HOST}
+    REVERB_SERVER_PORT: ${REVERB_SERVER_PORT}
+    REVERB_LOG_LEVEL: ${REVERB_LOG_LEVEL}
   volumes:
     - .:/var/www/html:cached
   networks:
@@ -55,6 +64,20 @@ services:
     depends_on:
       laravel:
         condition: service_healthy
+
+  reverb:
+    <<: *base-service
+    container_name: grd-tsui-reverb
+    # command: ["php", "/var/www/html/artisan", "--port=8000", "reverb:start"]
+    command: ["php", "/var/www/html/artisan", "reverb:start", "--host=0.0.0.0", "--port=6001"]
+    stop_signal: SIGTERM # Set this for graceful shutdown if you're using fpm-apache or fpm-nginx
+    ports:
+      - 8000:8000
+      - 6001:6001
+    healthcheck:
+      # This is our native healthcheck script for Reverb
+      test: ["CMD", "healthcheck-reverb"]
+      start_period: 10s
 
 networks:
   nginx-proxy-manager-network:

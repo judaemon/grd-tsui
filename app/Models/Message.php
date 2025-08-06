@@ -12,6 +12,7 @@ class Message extends Model
     public const TYPE_FILE   = 'file';
     public const TYPE_SYSTEM = 'system';
     public const TYPE_INFO   = 'info';
+    public const TYPE_USER   = 'user';
 
     protected $fillable = [
         'conversation_id',
