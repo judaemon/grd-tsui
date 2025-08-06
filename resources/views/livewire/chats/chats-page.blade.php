@@ -39,7 +39,7 @@
                                 <div>
                                     <div
                                         class="inline-block p-3 rounded-lg max-w-xs break-words
-                {{ $message->type === 'system' ? 'bg-gray-300 text-gray-700 text-sm' : ($message->user_id === auth()->id() ? 'bg-blue-500 text-white' : 'bg-gray-200') }}">
+                                        {{ $message->type === 'system' ? 'bg-gray-300 text-gray-700 text-sm' : ($message->user_id === auth()->id() ? 'bg-blue-500 text-white' : 'bg-gray-200') }}">
                                         <p>{{ $message->body }}</p>
                                     </div>
                                     @unless ($message->type === 'system')
@@ -58,10 +58,15 @@
 
                 <!-- Message input -->
                 <div class="p-4 bg-white border-t border-gray-200">
-                    <div class="flex items-center">
-                        <input type="text" placeholder="Type a message..." class="flex-1 p-2 border rounded-lg">
-                        <button class="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg">Send</button>
-                    </div>
+                    <form wire:submit.prevent="sendMessage">
+                        <div class="flex items-center">
+                            <input type="text" placeholder="Type a message..." class="flex-1 p-2 border rounded-lg"
+                                wire:model="messageBody" wire:keydown.enter="sendMessage">
+                            <button type="submit" class="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg">
+                                Send
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         @else
