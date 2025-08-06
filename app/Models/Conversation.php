@@ -22,9 +22,13 @@ class Conversation extends Model
         return $this->hasMany(ConversationUser::class);
     }
 
-    // TODO: create message model
-    // public function messages(): HasMany
-    // {
-    //     return $this->hasMany(Message::class);
-    // }
+    public function messages(): HasMany
+    {
+        return $this->hasMany(Message::class);
+    }
+
+    public function latestMessage()
+    {
+        return $this->hasOne(Message::class)->latestOfMany();
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Livewire\Chats;
 
 use Livewire\Component;
 use App\Models\Conversation;
+use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\On;
 use TallStackUi\Traits\Interactions;
 
@@ -17,12 +18,21 @@ class ChatsPage extends Component
     #[On('conversation-created')]
     public function mount()
     {
-        $this->conversations = Conversation::all();
+        $this->loadConversations();
+    }
+
+    public function loadConversations()
+    {
+        $this->conversations = Conversation::with('latestMessage')->get();
     }
 
     public function selectConversation($conversationId)
     {
-        $this->selectedConversation = Conversation::find($conversationId);
+        $this->selectedConversation = Conversation::with(['messages' => function ($query) {
+            $query->orderBy('created_at', 'asc')->limit(10);
+        }])->find($conversationId);
+
+        Log::info($this->selectedConversation);
     }
 
     public function render()

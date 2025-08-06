@@ -5,6 +5,7 @@ namespace App\Livewire\Chats;
 use App\Livewire\Traits\Alert;
 use App\Models\Conversation;
 use App\Models\ConversationUser;
+use App\Models\Message;
 use App\Models\User;
 use Livewire\Component;
 
@@ -39,7 +40,16 @@ class CreateConversationDialog extends Component
             'joined_at' => now(),
         ]);
 
-        // Add selected participants (if any)
+        // Create initial message for conversation creation
+        Message::create([
+            'conversation_id' => $conversation->id,
+            'user_id' => auth()->id(),
+            'body' => auth()->user()->name . ' created this new chat room',
+            'type' => Message::TYPE_SYSTEM,
+            'status' => 'sent',
+        ]);
+
+        // Add selected participants and create messages
         foreach ($this->selectedUserIds as $userId) {
             ConversationUser::create([
                 'conversation_id' => $conversation->id,
@@ -47,6 +57,16 @@ class CreateConversationDialog extends Component
                 'status' => ConversationUser::STATUS_ACTIVE,
                 'role' => ConversationUser::ROLE_MEMBER,
                 'joined_at' => now(),
+            ]);
+
+            // Create message for user addition
+            $addedUser = User::find($userId);
+            Message::create([
+                'conversation_id' => $conversation->id,
+                'user_id' => auth()->id(),
+                'body' => auth()->user()->name . ' added ' . $addedUser->name,
+                'type' => Message::TYPE_SYSTEM,
+                'status' => 'sent',
             ]);
         }
 
