@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('role')->default('member');          
             $table->timestamp('last_read_at')->nullable();
             $table->unique(['conversation_id', 'user_id']);
+            $table->timestamps();
         });
     }
 

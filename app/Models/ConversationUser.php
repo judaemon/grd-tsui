@@ -23,6 +23,7 @@ class ConversationUser extends Model
         'role',
         'joined_at',
         'last_read_at',
+        'updated_at',
     ];
 
     public function user(): BelongsTo

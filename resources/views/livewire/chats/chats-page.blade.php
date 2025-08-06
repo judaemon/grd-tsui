@@ -4,7 +4,6 @@
         <div class="p-4 border-b border-gray-200 flex justify-between items-center">
             <h2 class="text-lg font-semibold">Chats</h2>
             <livewire:chats.create-conversation-dialog />
-
         </div>
         <div class="flex-1 overflow-y-auto">
             @foreach ($this->conversations as $conversation)
