@@ -17,4 +17,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/chats', ChatsPage::class)->name('chats.index');
 });
 
+
+use App\Events\NumberGenerated;
+
+Route::get('/test-broadcast', function () {
+    $number = rand(1, 100);
+    broadcast(new NumberGenerated($number));
+    return "Broadcasted number: $number";
+});
+
+Route::view('/listen', 'test');
+
 require __DIR__.'/auth.php';

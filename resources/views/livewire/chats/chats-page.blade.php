@@ -1,3 +1,21 @@
+@push('scripts')
+    <script>
+        document.addEventListener('livewire:initialized', () => {
+            Livewire.hook('message.processed', (message, component) => {
+                if (component.name === 'chats.chats-page') {
+                    const selectedConversation = @json($selectedConversation?->id);
+                    if (selectedConversation) {
+                        Echo.channel(`conversation.${selectedConversation}`)
+                            .listen('MessageSent', (e) => {
+                                Livewire.dispatch('refresh-messages');
+                            });
+                    }
+                }
+            });
+        });
+    </script>
+@endpush
+
 <div class="flex h-full bg-gray-100">
     <!-- Sidebar for chat contacts -->
     <div class="w-1/4 bg-white border-r border-gray-200 flex flex-col">

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Chats;
 
+use App\Events\MessageSent;
 use Livewire\Component;
 use App\Models\Conversation;
 use App\Models\Message;
@@ -44,7 +45,7 @@ class ChatsPage extends Component
             return;
         }
 
-        Message::create([
+        $message = Message::create([
             'conversation_id' => $this->selectedConversation->id,
             'user_id' => auth()->id(),
             'body' => $this->messageBody,
@@ -52,9 +53,20 @@ class ChatsPage extends Component
             'status' => 'sent',
         ]);
 
+        broadcast(new MessageSent($message))->toOthers();
+
         $this->messageBody = '';
         $this->selectConversation($this->selectedConversation->id);
         $this->loadConversations();
+    }
+
+    #[On('refresh-messages')]
+    public function refreshMessages()
+    {
+        if ($this->selectedConversation) {
+            $this->selectConversation($this->selectedConversation->id);
+            $this->loadConversations();
+        }
     }
 
     public function render()
