@@ -35,3 +35,9 @@ window.Echo.connector.pusher.connection.bind('error', function (error) {
 
 
 // php artisan reverb:start --host=0.0.0.0 --port=6001
+
+
+window.Echo.channel('testing-channel')
+    .listen('.number.generated', (e) => {
+        console.log('Received number:', e.number);
+    });
