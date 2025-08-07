@@ -78,7 +78,14 @@
 
     @push('scripts')
         <script>
-            console.log("script loaded");
+            function scrollMessagesToBottom() {
+                const container = document.getElementById('messages-container');
+                if (container) {
+                    requestAnimationFrame(() => {
+                        container.scrollTop = container.scrollHeight;
+                    });
+                }
+            }
 
             function subscribeToConversation(conversationId) {
                 if (window.currentChannel) {
@@ -86,8 +93,8 @@
                 }
 
                 window.currentChannel = `conversation.${conversationId}`;
-                console.log("conversation.${conversationId}: ", `conversation.${conversationId}`);
-                console.log("window.currentChannel: ", window.currentChannel);
+                console.log("Subscribed to channel:", window.currentChannel);
+
                 window.Echo.channel(window.currentChannel)
                     .listen('.MessageSent', (e) => {
                         console.log('Received message:', e);
@@ -95,12 +102,21 @@
                     });
             }
 
-            // Always listen for 'conversation-selected', not just on init
             document.addEventListener('DOMContentLoaded', () => {
                 Livewire.on('conversation-selected', (conversationId) => {
-                    console.log("Subscribed to conversation", conversationId.conversationId);
+                    console.log("Conversation selected:", conversationId.conversationId);
                     subscribeToConversation(conversationId.conversationId);
+
+                    // Ensure scroll after messages render
+                    setTimeout(scrollMessagesToBottom, 100);
                 });
+
+                Livewire.on('refresh-messages', () => {
+                    setTimeout(scrollMessagesToBottom, 100);
+                });
+
+                // Optional: scroll on first load
+                setTimeout(scrollMessagesToBottom, 100);
             });
         </script>
     @endpush
