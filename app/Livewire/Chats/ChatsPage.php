@@ -3,11 +3,11 @@
 namespace App\Livewire\Chats;
 
 use App\Events\MessageSent;
-use Livewire\Component;
 use App\Models\Conversation;
 use App\Models\Message;
 use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\On;
+use Livewire\Component;
 use TallStackUi\Traits\Interactions;
 
 class ChatsPage extends Component
@@ -36,7 +36,8 @@ class ChatsPage extends Component
             $query->orderBy('created_at', 'asc')->limit(100);
         }])->find($conversationId);
 
-        Log::info($this->selectedConversation);
+        Log::info("Selected conversation", ['conversation_id' => $conversationId]);
+        $this->dispatch('conversation-selected', conversationId: $conversationId);
     }
 
     public function sendMessage()
@@ -53,7 +54,8 @@ class ChatsPage extends Component
             'status' => 'sent',
         ]);
 
-        broadcast(new MessageSent($message))->toOthers();
+        Log::info("Message sent", ['message_id' => $message->id]);
+        broadcast(new MessageSent($message));
 
         $this->messageBody = '';
         $this->selectConversation($this->selectedConversation->id);
@@ -66,6 +68,7 @@ class ChatsPage extends Component
         if ($this->selectedConversation) {
             $this->selectConversation($this->selectedConversation->id);
             $this->loadConversations();
+            Log::info("Messages refreshed", ['conversation_id' => $this->selectedConversation->id]);
         }
     }
 

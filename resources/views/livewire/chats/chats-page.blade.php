@@ -1,21 +1,3 @@
-@push('scripts')
-    <script>
-        document.addEventListener('livewire:initialized', () => {
-            Livewire.hook('message.processed', (message, component) => {
-                if (component.name === 'chats.chats-page') {
-                    const selectedConversation = @json($selectedConversation?->id);
-                    if (selectedConversation) {
-                        Echo.channel(`conversation.${selectedConversation}`)
-                            .listen('MessageSent', (e) => {
-                                Livewire.dispatch('refresh-messages');
-                            });
-                    }
-                }
-            });
-        });
-    </script>
-@endpush
-
 <div class="flex h-full bg-gray-100">
     <!-- Sidebar for chat contacts -->
     <div class="w-1/4 bg-white border-r border-gray-200 flex flex-col">
@@ -49,11 +31,11 @@
             </div>
             <div class="flex flex-col flex-1 min-h-0">
                 <!-- Messages area -->
-                <div class="flex-1 overflow-y-auto p-4">
+                <div class="flex-1 overflow-y-auto p-4" id="messages-container">
                     @if ($selectedConversation->messages->isNotEmpty())
                         @foreach ($selectedConversation->messages as $message)
-                            <div
-                                class="mb-4 {{ $message->type === 'system' ? 'flex justify-center' : ($message->user_id === auth()->id() ? 'flex justify-end' : 'flex justify-start') }}">
+                            <div class="mb-4 {{ $message->type === 'system' ? 'flex justify-center' : ($message->user_id === auth()->id() ? 'flex justify-end' : 'flex justify-start') }}"
+                                wire:key="message-{{ $message->id }}">
                                 <div>
                                     <div
                                         class="inline-block p-3 rounded-lg max-w-xs break-words
@@ -73,7 +55,6 @@
                         <p class="text-sm text-gray-500">No messages in this conversation.</p>
                     @endif
                 </div>
-
             </div>
 
             <!-- Message input -->
@@ -94,4 +75,33 @@
             </div>
         @endif
     </div>
+
+    @push('scripts')
+        <script>
+            console.log("script loaded");
+
+            function subscribeToConversation(conversationId) {
+                if (window.currentChannel) {
+                    window.Echo.leave(window.currentChannel);
+                }
+
+                window.currentChannel = `conversation.${conversationId}`;
+                console.log("conversation.${conversationId}: ", `conversation.${conversationId}`);
+                console.log("window.currentChannel: ", window.currentChannel);
+                window.Echo.channel(window.currentChannel)
+                    .listen('.MessageSent', (e) => {
+                        console.log('Received message:', e);
+                        Livewire.dispatch('refresh-messages');
+                    });
+            }
+
+            // Always listen for 'conversation-selected', not just on init
+            document.addEventListener('DOMContentLoaded', () => {
+                Livewire.on('conversation-selected', (conversationId) => {
+                    console.log("Subscribed to conversation", conversationId.conversationId);
+                    subscribeToConversation(conversationId.conversationId);
+                });
+            });
+        </script>
+    @endpush
 </div>
