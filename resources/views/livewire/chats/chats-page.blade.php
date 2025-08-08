@@ -1,4 +1,6 @@
-<div class="flex h-full bg-gray-100">
+<div x-data="{
+  isOtherUserTyping: {{ $isOtherUserTyping ? 'true' : 'false' }},
+}" class="flex h-full bg-gray-100">
     <!-- Sidebar for chat contacts -->
     <div class="w-1/4 bg-white border-r border-gray-200 flex flex-col">
         <div class="p-4 border-b border-gray-200 flex justify-between items-center">
@@ -48,12 +50,14 @@
                                             {{ $message->created_at->format('h:i A') }}
                                         </p>
                                     @endunless
+
                                 </div>
                             </div>
                         @endforeach
                     @else
                         <p class="text-sm text-gray-500">No messages in this conversation.</p>
                     @endif
+                    <p id="typing-indicator" class="text-sm text-gray-500 italic mb-2 ">test</p>
                 </div>
             </div>
 
@@ -62,7 +66,8 @@
                 <form wire:submit.prevent="sendMessage">
                     <div class="flex items-center">
                         <input type="text" placeholder="Type a message..." class="flex-1 p-2 border rounded-lg"
-                            wire:model="messageBody" wire:keydown.enter="sendMessage">
+                            wire:model="messageBody" wire:keydown.enter="sendMessage" 
+                        >
                         <button type="submit" class="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg">
                             Send
                         </button>
@@ -78,8 +83,6 @@
 
     @push('scripts')
         <script>
-            console.log("script loaded");
-
             function subscribeToConversation(conversationId) {
                 if (window.currentChannel) {
                     window.Echo.leave(window.currentChannel);
@@ -88,10 +91,13 @@
                 window.currentChannel = `conversation.${conversationId}`;
                 console.log("conversation.${conversationId}: ", `conversation.${conversationId}`);
                 console.log("window.currentChannel: ", window.currentChannel);
-                window.Echo.channel(window.currentChannel)
+                window.Echo.private(window.currentChannel)
                     .listen('.MessageSent', (e) => {
                         console.log('Received message:', e);
                         Livewire.dispatch('refresh-messages');
+                    })
+                    .listen('.UserTyping', (e) => {
+                        
                     });
             }
 
