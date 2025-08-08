@@ -31,8 +31,8 @@ services:
     ports:
       - 8080:8080
       - 5173:5173
-      - 8000:8000
-      - 6001:6001
+      # - 8000:8000
+      # - 6001:6001
     # healthcheck:
     #   test: ["CMD", "test", "-f", "/var/www/html/vendor/autoload.php"]
     #   interval: 5s
@@ -67,19 +67,17 @@ services:
       laravel:
         condition: service_healthy
 
-  # reverb:
-  #   <<: *base-service
-  #   container_name: grd-tsui-reverb
-  #   # command: ["php", "/var/www/html/artisan", "--port=8000", "reverb:start"]
-  #   command: ["php", "/var/www/html/artisan", "reverb:start", "--host=0.0.0.0", "--port=6001"]
-  #   stop_signal: SIGTERM # Set this for graceful shutdown if you're using fpm-apache or fpm-nginx
-  #   ports:
-  #     - 8000:8000
-  #     - 6001:6001
-  #   healthcheck:
-  #     # This is our native healthcheck script for Reverb
-  #     test: ["CMD", "healthcheck-reverb"]
-  #     start_period: 10s
+  reverb:
+      <<: *base-service
+      container_name: grd-tsui-reverb
+      hostname: grd-tsui-reverb
+      command: ["php", "/var/www/html/artisan", "--port=6001", "reverb:start"]
+      stop_signal: SIGTERM
+      ports:
+        - 6001:6001
+      healthcheck:
+        test: ["CMD", "healthcheck-reverb"]
+        start_period: 10s
 
 networks:
   nginx-proxy-manager-network:
