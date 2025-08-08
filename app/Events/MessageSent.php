@@ -6,6 +6,7 @@ use App\Models\Message;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow; // Changed to ShouldBroadcastNow
 use Illuminate\Support\Facades\Log;
 
@@ -30,7 +31,7 @@ class MessageSent implements ShouldBroadcastNow
     {
         $channel = 'conversation.' . $this->message->conversation_id;
         Log::info("Broadcasting on channel", ['channel' => $channel]);
-        return new Channel($channel);
+        return new PrivateChannel($channel);
     }
 
     public function broadcastAs(): string

@@ -3,8 +3,10 @@
 namespace App\Livewire\Chats;
 
 use App\Events\MessageSent;
+use App\Events\UserTyping;
 use App\Models\Conversation;
 use App\Models\Message;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -17,6 +19,8 @@ class ChatsPage extends Component
     public $conversations = [];
     public ?Conversation $selectedConversation = null;
     public string $messageBody = '';
+    public bool $isTyping = false;
+    public bool $isOtherUserTyping = false;
 
     #[On('conversation-created')]
     public function mount()
@@ -26,7 +30,23 @@ class ChatsPage extends Component
 
     public function loadConversations()
     {
-        $this->conversations = Conversation::with('latestMessage')->get();
+        $this->conversations = Conversation::with('latestMessage')
+          ->whereHas('participants', function($query) {
+            $query->where('user_id', Auth::id());
+          })
+          ->get();
+    }
+
+    public function usersTyping($status){
+      Log::info("User typing status", [
+          'user_id' => Auth::id(),
+          'is_typing' => $status,
+          'conversation_id' => $this->selectedConversation ? $this->selectedConversation->id : null
+      ]);
+      if($this->selectedConversation){
+        $this->isTyping = $status;
+        event(new UserTyping(Auth::id(), $this->isTyping, $this->isOtherUserTyping));
+      }
     }
 
     public function selectConversation($conversationId)

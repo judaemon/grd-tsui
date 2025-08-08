@@ -18,6 +18,7 @@
                 <x-select.styled label="Select Participants" wire:model="selectedUserIds" :options="$allUsers" multiple
                     value-field="id" text-field="name" select="label:name|value:id" multiple />
             </div>
+            <livewire:search-users :isMultiple="false"/>
         </form>
 
         <x-slot:footer>
